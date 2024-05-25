@@ -17,6 +17,7 @@ function App() {
     faceUp: [],
   });
   const [deck, setDeck] = useState([...deckArray]);
+  const [currentTurn, setCurrentTurn] = useState('');
 
   useEffect(() => {
     drawCards(deck);
@@ -26,7 +27,7 @@ function App() {
     const newPlayer = { hand: [], faceDown: [], faceUp: [] };
     const newComputer = { hand: [], faceDown: [], faceUp: [] };
 
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 4; i++) {
       drawCardForPlayer(newPlayer.hand, deck);
       drawCardForPlayer(newPlayer.faceDown, deck);
       drawCardForPlayer(newPlayer.faceUp, deck);
@@ -38,6 +39,7 @@ function App() {
     setPlayer(newPlayer);
     setComputer(newComputer);
     setDeck(deck);
+    setCurrentTurn('player');
   };
 
   function drawCardForPlayer(playerCategory) {
@@ -47,19 +49,34 @@ function App() {
     deck.splice(randomNumber, 1);
   };
 
-  function playerTurn(index, playerCard) {
-    if (!middlePile) {
-      setMiddlePile(...middlePile, playerCard)
-    }
-    player.hand.splice(index, 1);
+  const playerTurn = (index, playerCard) => {
+    console.log(deck);
+    setMiddlePile((prevPile) => [...prevPile, playerCard]);
+
+    setPlayer((prevPlayer) => {
+      const newHand = [...prevPlayer.hand];
+      newHand.splice(index, 1);
+      return { ...prevPlayer, hand: newHand };
+    });
+    drawCardForPlayer(player.hand);
+    console.log(deck);
+    setCurrentTurn('cpu');
   };
+
+  
 
   return (
     <div className="App">
-      <div>{middlePile}</div>
+      <h1>Pile</h1>
+      <div>{middlePile.map((card, index) => (
+        <div key={index}>{card.suits}, {card.card}</div>
+      ))}</div>
+      <h1>Player hand</h1>
       {player.hand.map((card, index) => (
-        <div key={card.index} onClick={playerTurn(index, card)}>{card.suits}, {card.card}</div>
+        <div key={card.index} onClick={() => playerTurn(index, card)}>{card.suits}, {card.card}</div>
       ))}
+      <h1>Who's turn it is</h1>
+      <div>{currentTurn}</div>
     </div>
   );
 }
